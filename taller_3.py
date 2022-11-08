@@ -46,8 +46,6 @@ print()
 
 # creacion de login
 try:
-    con = connection()
-    cursor = con.cursor()
     rut = str(input("Ingrese su rut: "))
     if(rut.lower() != "admin"): # es un cliente
         query = "SELECT rut FROM cliente WHERE rut = %s"
@@ -111,9 +109,13 @@ try:
         while opcion != 5:
             if (opcion == 1):
                 print("Ingrese el rut del usuario que desea bloquear")
-
+    
 except Exception as error:
     print("Error: %s" % error)
+
+finally:
+    print("apagando . . .")
+    connection().close()
 
 
 
