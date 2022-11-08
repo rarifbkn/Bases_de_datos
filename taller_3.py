@@ -104,8 +104,9 @@ try:
         print("1. Bloquear usuario")
         print("2. Ver el historial de compras")
         print("3. Agregar producto")
-        print("4. Actualizar datos de un producto")
-        print("5. salir")
+        print("4. Agregar stock")
+        print("5. Actualizar datos de un producto")
+        print("6. salir")
         opcion = int(input("Ingrese la opcion que desea realizar: "))
         while opcion != 5:
             if (opcion == 1):
