@@ -40,6 +40,45 @@ def select_query(query,data=[]):
     except(Exception, Error) as error:
         print("Error: %s" % error)
 
+def menu_cliente():
+    print(".....Bienvenido/a al menu administrador....")
+    print("1. Bloquear usuario")
+    print("2. Ver el historial de compras")
+    print("3. Agregar producto")
+    print("4. Agregar stock")
+    print("5. Actualizar datos de un producto")
+    print("6. salir")
+    opcion = int(input("Ingrese la opcion que desea realizar: "))
+
+def menu_Administrador():
+    print(".....Bienvenido/a al menu administrador....")
+    print("1. Bloquear usuario")
+    print("2. Ver el historial de compras")
+    print("3. Agregar producto")
+    print("4. Agregar stock")
+    print("5. Actualizar datos de un producto")
+    print("6. salir")
+    opcion = int(input("Ingrese la opcion que desea realizar: "))
+    while opcion != 6 and opcion < 6:
+        if (opcion == 1):
+            usuario = str(input("Ingrese el usuario que desea bloquear"))
+            query = "DELETE FROM cliente WHERE usuario = %s"
+            select_query(query,[usuario])
+            print("Usuario ",usuario," ha sido bloqueado")
+        if(opcion == 2):
+            rut_usuario = str(input("Ingrese el rut del usuario que desea ver el historial de compras: "))
+            query = "SELECT * FROM historial_de_ventas WHERE rut_cliente = %s"
+            print("Historial de compras")
+            print("Ingrese el rut del usuario que desea bloquear")
+        if(opcion == 3):
+            print("Ingrese el rut del usuario que desea bloquear")
+        if(opcion == 4):
+            print("Ingrese el rut del usuario que desea bloquear")
+        if(opcion == 5):
+            print("Ingrese el rut del usuario que desea bloquear")
+        if(opcion == 6):
+            print("Gracias por utilizar el sistema...saliendo")
+
 print("============================================================")
 print("=========Bienvenido/a al Negocio de Juanita :D==============")
 print()
@@ -58,7 +97,7 @@ try:
                 password = str(input("Error,Ingrese su contraseña nuevamente: "))
                 query = "SELECT rut FROM cliente WHERE rut = %s AND passw = %s"
                 login = select_query(query,[rut,password]) 
-            print("Bienvenido/a al sistema")
+            menu_cliente()
 
         else: # si el rut no se encuentra en la base de datos
             print("El rut ingresado no existe o esta erroneo...")
@@ -78,7 +117,7 @@ try:
                     password = str(input("Error,Ingrese su contraseña nuevamente: "))
                     query = "SELECT rut FROM cliente WHERE rut = %s AND passw = %s"
                     login = select_query(query,[rut,password]) 
-                print("Bienvenido/a al sistema")    
+                menu_cliente()   
 
             else: # si no esta registrado
                 query = "SELECT SUM(cant_carritos) FROM (SELECT COUNT(carrito_id) AS cant_carritos FROM carrito GROUP BY carrito_id) AS tabla"
@@ -98,18 +137,8 @@ try:
         password = str(input("Ingrese su contraseña: "))
         while password.lower() != "negociojuanita": #se equivocó en la contraseña
             password = str(input("Error,Ingrese su contraseña nuevamente: "))
-        print(".....Bienvenido/a al menu administrador....")
-        print("1. Bloquear usuario")
-        print("2. Ver el historial de compras")
-        print("3. Agregar producto")
-        print("4. Agregar stock")
-        print("5. Actualizar datos de un producto")
-        print("6. salir")
-        opcion = int(input("Ingrese la opcion que desea realizar: "))
-        while opcion != 5:
-            if (opcion == 1):
-                print("Ingrese el rut del usuario que desea bloquear")
-    
+        menu_Administrador()
+
 except Exception as error:
     print("Error: %s" % error)
 
