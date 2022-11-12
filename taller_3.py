@@ -5,9 +5,9 @@ def connection():
     try:
         connection = connect(
             host='localhost',
-            database='taller_3',
+            database='Taller_3',
             user='postgres',
-            password='pingui840', 
+            password='1685', 
             port='5432')
         return connection
     except(Exception, Error) as error:
@@ -76,8 +76,9 @@ def menu_cliente(rut):
     print("5. Ver Carrito")
     print("6. Quitar producto del carrito")
     print("7. Pagar Carrito")
+    print("8. Salir")
     opcion = int(input("Ingrese la opcion que desea realizar: "))
-    if(opcion <6):
+    if(opcion <7):
         menu = True
     else:
         menu = False
@@ -85,11 +86,11 @@ def menu_cliente(rut):
         if (opcion == 1):#uwu
             print("se comenzará con el cambio de contraseña . . .")
             password = str(input("a continuacion se le pedira que ingrese su contraseña actual: "))
-            query = "SELECT passw FROM cliente WHERE rut = %s AND passw = %s "
+            query = "SELECT pass FROM cliente WHERE rut = %s AND pass = %s "
             login = select_query(query,[rut,password])
             while (login == []) :
                 password = str(input("Error,Ingrese su contraseña nuevamente: "))
-                query = "SELECT rut FROM cliente WHERE rut = %s AND passw = %s"
+                query = "SELECT rut FROM cliente WHERE rut = %s AND pass = %s"
                 login = select_query(query,[rut,password])
 
             new_password = str(input("Ingrese su nueva contraseña: "))
@@ -99,7 +100,7 @@ def menu_cliente(rut):
                 new_password = str(input("Ingrese su nueva contraseña: "))
                 verify_password = str(input("Ingrese nuevamente su nueva contraseña: "))
 
-            query = "UPDATE cliente SET passw = %s WHERE rut = %s"
+            query = "UPDATE cliente SET pass = %s WHERE rut = %s"
             update_query(query,[verify_password,rut])
             print("Contraseña actualizada con exito")
             
@@ -161,11 +162,36 @@ def menu_cliente(rut):
             print("Su saldo actual es: $",result[0][0])
 
         if(opcion == 4):
-            print("Ingrese el rut del usuario que desea bloquear")
+             print("Recargar saldo")
+             recarga = int(input("Inserte la cantidad que desea recargar:"))
+             query = "UPDATE cliente SET saldo = cliente.saldo + %s WHERE cliente.rut = %s"
+             update_query(query,[recarga,rut])
+             break
+
         if(opcion == 5):
-            print("Ingrese el rut del usuario que desea bloquear")
+            print("Ver carrito")
+            query = "SELECT producto_id,COUNT(*) from carrito_productos WHERE EXISTS(SELECT rut FROM cliente WHERE cliente.rut = %s) GROUP by carrito_productos.producto_id) "
+            select_query(query,[rut])
+            break
         if(opcion == 6):
-            print("Gracias por utilizar el sistema...saliendo")
+            print("Quitar del carrito")
+            id_eliminar = str(input("Ingrese el id del producto que desea eliminar del carrito"))
+            cant_eliminar = int(input("Ingrese la cantidad del producto que desea eliminar:"))
+            query ="DELETE FROM carrito_productos WHERE carrito_productos.producto_id = %s"
+            delete_query(query,[id_eliminar])
+            query2 = "UPDATE producto SET stock = producto.stock-%s WHERE producto.id_producto = %s"
+            update_query(query2,[cant_eliminar,id_eliminar])
+            break
+        if(opcion == 7):
+                print("Pagar carrito")
+                query = "SELECT monto_acumulado FROM carrito WHERE EXISTS(SELECT * FROM cliente WHERE cliente.rut = %s )"#revisar q el monto no sea 
+                select_query(query,[rut])
+                respuesta = str(input("Desea pagar?:"))
+                if(respuesta.lower() == "si"):
+                    #verificar que lo pueda pagar
+                    
+                    query = "UPDATE cliente SET saldo = cliente.saldo - "
+                    break
 
         continuar = str(input("Desea realizar otra accion? (si/no): "))
        
@@ -237,11 +263,42 @@ def menu_Administrador():
                 print("no hay clientes registrados aun :c")
 
         if(opcion == 3):
-            print("Ingrese el rut del usuario que desea bloquear")
+            print("Agregar producto:")
+            producto = str(input("Ingrese el nombre del producto que desea agregar:"))
+            precio = str(input("Ingrese el precio del nuevo producto"))
+            stock = int(input("Ingrese el stock del nuevo producto:"))
+            query = "INSERT INTO producto(producto_id,precio,stock) VALUES (producto,precio,stock)"
+            insert_query(query,[producto,precio,stock])
+
         if(opcion == 4):
-            print("Ingrese el rut del usuario que desea bloquear")
+            print("Agregar stock:")
+            producto = str(input("Ingrese el nombre del producto:"))
+            stock = int(input("Ingrese la cantidad de stock que desea agregar:"))
+            query = "UPDATE producto SET stock = producto.stock + %s WHERE producto.id_producto = %s"
+            update_query(query,[stock,producto])
+    
         if(opcion == 5):
-            print("Ingrese el rut del usuario que desea bloquear")
+            print("Actualizar datos de un producto:")
+            producto_ingresdo = str(input("Ingrese el nombre del producto que desea modificar:"))
+            print("Modificaciones disponibles:")
+            print("1.Precio")
+            print("2.Nombre")
+            print("3.Ambas")
+            respuesta = int(input("Ingrese una opcion:"))
+            if respuesta == 1:
+                nuevo_precio = int(input("Ingrese el nuevo precio:"))
+                query = "UPDATE producto SET precio = %s WHERE producto.id_producto = %s"
+                update_query(query,[nuevo_precio,producto_ingresdo])
+            elif respuesta == 2:
+                nuevo_nombre = str(input("Ingrese el nuevo nombre:"))
+                query = "UPDATE producto SET id_producto = %s WHERE producto.id_producto = %s "
+                select_query(query,[nuevo_nombre,producto_ingresdo])
+            elif respuesta == 3:
+                nuevo_nombre = str(input("Ingrese el nuevo nombre:"))
+                nuevo_precio = str(input("Ingrese el nuevo precio:"))
+                query = "UPDATE producto SET id_producto = %s, precio =%s WHERE producto.id_producto = %s"
+                update_query(query,[nuevo_nombre,nuevo_precio,producto_ingresdo])
+
         print("-----------------------------------------------------------------------------------------")
         print("-----------------------------------------------------------------------------------------")
         continuar = str(input("Desea realizar otra accion? (si/no): "))
@@ -271,13 +328,13 @@ try:
         #caso de estar en la base de datos
         if (resultado != []): 
             password = str(input("Ingrese su contraseña: "))
-            query = "SELECT rut FROM cliente WHERE rut = %s AND passw = %s"
+            query = "SELECT rut FROM cliente WHERE rut = %s AND pass = %s"
             login = select_query(query,[rut,password])
 
             #correccion de contraseña
             while (login == []) :
                 password = str(input("Error,Ingrese su contraseña nuevamente: "))
-                query = "SELECT rut FROM cliente WHERE rut = %s AND passw = %s"
+                query = "SELECT rut FROM cliente WHERE rut = %s AND pass = %s"
                 login = select_query(query,[rut,password]) 
             menu_cliente(rut)
 
@@ -294,17 +351,17 @@ try:
                 # corrige el rut---------------
                 while resultado == []: 
                     rut = str(input("Error,Ingrese su rut nuevamente: "))
-                    query = "SELECT rut FROM cliente WHERE rut = %s AND passw = %s"
+                    query = "SELECT rut FROM cliente WHERE rut = %s AND pass = %s"
                     resultado = select_query(query,[rut])
 
                 password = str(input("Ingrese su contraseña: "))
-                query = "SELECT rut FROM cliente WHERE rut = %s AND passw = %s"
+                query = "SELECT rut FROM cliente WHERE rut = %s AND pass = %s"
                 login = select_query(query,[rut,password])
 
                 #corrige la contraseña----------
                 while (login == []) :
                     password = str(input("Error,Ingrese su contraseña nuevamente: "))
-                    query = "SELECT rut FROM cliente WHERE rut = %s AND passw = %s"
+                    query = "SELECT rut FROM cliente WHERE rut = %s AND pass = %s"
                     login = select_query(query,[rut,password]) 
                 menu_cliente(rut)   
 
@@ -328,7 +385,7 @@ try:
                 password = str(input("Ingrese su contraseña: "))
                 saldo = int(input("Ingrese su saldo: "))
                 #registra el cliente-----------------------------
-                query = "INSERT INTO cliente (usuario,rut,carrito_id,passw,saldo) VALUES (%s,%s,%s,%s,%s)"
+                query = "INSERT INTO cliente (usuario,rut,carrito_id,pass,saldo) VALUES (%s,%s,%s,%s,%s)"
                 insert_query(query,[usuario,rut,carrito_id,password,saldo])
                 print("Se ha registrado correctamente")               
     
